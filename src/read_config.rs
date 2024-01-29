@@ -1,8 +1,8 @@
 use crate::handle_parse_all_files::SolidityABI;
-use serde::{Deserialize, Serialize,Deserializer};
+use serde::{Deserialize, Deserializer, Serialize};
 use std::fs;
-use walkdir::*;
 use std::result::Result;
+use walkdir::*;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub enum Framework {
@@ -70,8 +70,8 @@ pub fn read_config() -> JasperConfigOutput {
 // }
 fn get_all_abi_files(config: &JasperConfig) -> Vec<String> {
     let out_folder = match config.framework {
-        Framework::Foundry =>  "./out/",
-        Framework::Hardhat =>  "./artifacts/",
+        Framework::Foundry => "./out/",
+        Framework::Hardhat => "./artifacts/",
     };
 
     //Recursively find all the abi files in the contracts folder
@@ -91,7 +91,10 @@ fn get_all_solidity_files(config: &JasperConfig) -> Vec<String> {
         .into_iter()
         .filter_map(|e| e.ok())
         .filter(|e| !e.file_type().is_dir())
-        .filter(|e| e.path().to_str().unwrap().ends_with(".sol") && ! e.path().to_str().unwrap().ends_with(".t.sol") )
+        .filter(|e| {
+            e.path().to_str().unwrap().ends_with(".sol")
+                && !e.path().to_str().unwrap().ends_with(".t.sol")
+        })
         .map(|e| e.path().to_str().unwrap().to_string())
         .collect::<Vec<String>>();
     all_solidity_files.extend(config.extra_included_files.clone());
@@ -103,17 +106,16 @@ fn get_all_solidity_files(config: &JasperConfig) -> Vec<String> {
 struct FileWithABI {
     abi: Vec<SolidityABI>,
 }
-pub fn parse_abi_file(abi_file_path:&str,config:&JasperConfigOutput) -> Vec<SolidityABI> {
+pub fn parse_abi_file(abi_file_path: &str, config: &JasperConfigOutput) -> Vec<SolidityABI> {
     match config.framework {
         Framework::Foundry => {
             let abi_json = std::fs::read_to_string(abi_file_path);
-     
 
             let abi_json = abi_json.unwrap();
             // println!("{}",abi_json);
             let abi: FileWithABI = serde_json::from_str(&abi_json).unwrap();
             return abi.abi;
-        },
+        }
         Framework::Hardhat => {
             let abi_json = std::fs::read_to_string(abi_file_path);
             let abi_json = abi_json.unwrap();

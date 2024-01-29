@@ -8,8 +8,8 @@ mod prepare_error_from_abi;
 use clap::{arg, command, value_parser, ArgAction, Command, Parser};
 pub mod handle_parse_all_files;
 mod read_config;
-use read_config::read_config;
 use crate::handle_parse_all_files::handle_parse_all_files;
+use read_config::read_config;
 #[derive(Parser, Deserialize, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
@@ -20,11 +20,11 @@ struct Args {
 fn main() {
     //read in abi.json and parse it
     // call the cli jasper
-    
+
     let config = read_config();
     let all_abi_files = config.all_abi_files.clone();
     let all_solidity_files = config.all_solidity_files.clone();
-    handle_parse_all_files(all_abi_files, all_solidity_files,&config);
+    handle_parse_all_files(all_abi_files, all_solidity_files, &config);
     // let matches = Command::new("jasper")
     //     .version("1.0")
     //     .author("Your Name <your_email@example.com>")
@@ -33,7 +33,7 @@ fn main() {
 
     // let args = Args::parse();
     // println!("args = {:?}", args);
-    
+
     // let contracts: Vec<String> = vec![
     //     "contracts/CarbonCreditDescendingPriceAuction.sol".to_string(),
     //     "contracts/ImpactCatalyst.sol".to_string(),

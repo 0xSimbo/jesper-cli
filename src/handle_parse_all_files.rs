@@ -1,11 +1,11 @@
 use crate::constants;
 use crate::find_selector;
 use crate::parse_sol_file::{parse_sol_file, SolidityMessageAndArgs};
+use crate::read_config::{parse_abi_file, JasperConfigOutput};
 use clap::{arg, command, value_parser, ArgAction, Command, Parser};
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use crate::read_config::{parse_abi_file,JasperConfigOutput};
 #[derive(Serialize, Deserialize, Clone)]
 pub struct ABIInput {
     name: Option<String>,
@@ -30,7 +30,7 @@ struct Output {
     #[serde(rename = "solidityMessageAndArgs")]
     solidity_message_and_args: SolidityMessageAndArgs,
 }
-pub fn prepare_error_from_abi_input(input: &SolidityABI) -> (String,Vec<ABIInput>) {
+pub fn prepare_error_from_abi_input(input: &SolidityABI) -> String {
     let mut error = String::new();
     //Name(input[0].type, input[1].type, ...)
     error.push_str(&input.name.clone().unwrap());
@@ -44,10 +44,14 @@ pub fn prepare_error_from_abi_input(input: &SolidityABI) -> (String,Vec<ABIInput
     input_types.pop();
     error.push_str(&input_types);
     error.push(')');
-    return (error,input.inputs.unwrap());
+    return error;
 }
-pub fn handle_parse_all_files(abi_files: Vec<String>, solidity_files: Vec<String>,config:&JasperConfigOutput) {
-    let (selectors, prepared_errors) = get_prepared_errors_from_abi_files(abi_files,config);
+pub fn handle_parse_all_files(
+    abi_files: Vec<String>,
+    solidity_files: Vec<String>,
+    config: &JasperConfigOutput,
+) {
+    let (selectors, prepared_errors) = get_prepared_errors_from_abi_files(abi_files, config);
 
     // For each solidity file,aggregate the solidity file
     let error_to_message_map: HashMap<String, SolidityMessageAndArgs> = solidity_files
@@ -121,13 +125,16 @@ pub fn handle_parse_all_files(abi_files: Vec<String>, solidity_files: Vec<String
     // std::fs::write("ts/errors2.ts", typescript).unwrap();
 }
 
-pub fn get_prepared_errors_from_abi_files(abi_files: Vec<String>,config:&JasperConfigOutput) -> (Vec<String>, Vec<String>) {
+pub fn get_prepared_errors_from_abi_files(
+    abi_files: Vec<String>,
+    config: &JasperConfigOutput,
+) -> (Vec<String>, Vec<String>) {
     let mut prepared_errors: Vec<String> = Vec::new();
     let mut selectors: Vec<String> = Vec::new();
 
     for (i, abi_fn) in abi_files.iter().enumerate() {
         //read in the abi file
-        let abi = parse_abi_file(abi_fn,config);
+        let abi = parse_abi_file(abi_fn, config);
 
         //Find only the errors
         let errors: Vec<SolidityABI> = abi
@@ -137,13 +144,10 @@ pub fn get_prepared_errors_from_abi_files(abi_files: Vec<String>,config:&JasperC
 
         //A list of errors as strings
         let mut prepared_errors_from_file = errors
-            .clone().into_iter()
-            .map(|x| prepare_error_from_abi_input(&x).0)
-            .collect::<Vec<String>>();
-        let abi_inputs = errors
+            .clone()
             .into_iter()
-            .map(|x| prepare_error_from_abi_input(&x).1)
-            .collect::<Vec<Vec<ABIInput>>>();
+            .map(|x| prepare_error_from_abi_input(&x))
+            .collect::<Vec<String>>();
 
         //A vector of all the selectors
         let mut selectors_from_file = prepared_errors_from_file
