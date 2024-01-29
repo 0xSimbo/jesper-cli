@@ -80,6 +80,10 @@ Another file will be generated based on the `modes` specified in the config. Thi
 
 It exports a function called `jesperParseError` which takes in error data and returns a string. This function is used to parse the error message and inject the arguments into the message.
 
+## Giving Feedback
+
+I'm not a rust expert nor a crate versioning expert. Forgive any silly errors, I just needed a quick solution to reduce the lag between frontend, backend, and contracts. If you want to change something feel free to open a PR or an issue.
+
 ## Roadmap
 
 - [x] Make sure you can't inject an error argument that doesen't exist.
