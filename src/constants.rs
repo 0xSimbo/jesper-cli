@@ -10,6 +10,7 @@ export type SolidityMessageAndArgs = {
     args: {
       name: string;
       type: string;
+      internalType: string;
     }[];
   };
   

@@ -1,21 +1,16 @@
-use crate::find_selector;
+use crate::find_selector::find_selector;
+use crate::handle_parse_all_files::ABIInput;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
 use std::io;
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct SolidityArg {
-    #[serde(rename = "type")]
-    pub _type: String,
-    pub name: Option<String>,
-}
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct SolidityMessageAndArgs {
     #[serde(rename = "errorMessage")]
     pub error_message: String,
-    pub args: Vec<SolidityArg>,
+    pub args: Vec<ABIInput>,
 }
 fn cleanup_text_input(input: &str) -> String {
     let m = input.split_whitespace().collect::<Vec<&str>>().join(" ");
@@ -28,9 +23,21 @@ fn cleanup_text_input(input: &str) -> String {
     return m;
 }
 
+pub struct Temp {
+    pub cleaned_error: String,
+    pub identifier: String,
+}
 pub fn parse_sol_file(
     file_path: &str,
-) -> Result<HashMap<String, SolidityMessageAndArgs>, io::Error> {
+) -> Result<
+    (
+        HashMap<String, SolidityMessageAndArgs>,
+        HashMap<String, Temp>,
+    ),
+    io::Error,
+> {
+    let registry_path = "./contracts/Registry.sol";
+    let is_registry = file_path == registry_path;
     let file_contents = fs::read_to_string(file_path)?;
 
     //get all lines by iterating over the lines
@@ -38,35 +45,44 @@ pub fn parse_sol_file(
         .lines()
         .map(|line| line.to_string())
         .collect::<Vec<String>>();
+    let mut identifier_to_selector: HashMap<String, Temp> = HashMap::new();
 
     let error_pattern = r"error\s+\w+\s*\([^;]*\);";
     let re = Regex::new(error_pattern).expect("Failed to compile regex");
-
-    //Indicator to cleaed errors
-    let mut line_indicators: HashMap<String, String> = HashMap::new();
-    //Find all the errors
-    let cleaned_errors: Vec<String> = re
+    let line_indicators = re
         .captures_iter(&file_contents)
         .filter_map(|cap| cap.get(0))
         .map(|mat| {
             let mat = cleanup_text_input(mat.clone().as_str());
             let identifier = mat.split("(").collect::<Vec<&str>>()[0];
             // println!("identifier = {}", identifier);
+            //insert identifier to selector
+            let selector = find_selector(identifier);
+            identifier_to_selector.insert(
+                identifier.to_string(),
+                Temp {
+                    cleaned_error: mat.clone(),
+                    identifier: selector.clone(),
+                },
+            );
 
             //insert it into the map
-            // let selector = find_selector::find_selector(&res);
             // println!("identifier = {}", identifier);
-            line_indicators.insert(identifier.to_string(), mat.clone());
-            return mat;
+            return (identifier.to_string(), mat.clone());
         })
-        .collect();
+        .collect::<HashMap<String, String>>();
 
+    // //print all line indicators
+    // for (key, val) in line_indicators.iter() {
+    //     println!("{} -> {}", key, val);
+    // }
     //print cleaned
     let mut error_to_error_message: HashMap<String, SolidityMessageAndArgs> = HashMap::new();
 
     //do the above, but use indexes so we can get line above
     for (i, line) in lines.iter().enumerate() {
         let cleaned_line = cleanup_text_input(line.as_str());
+
         let parts: Vec<&str> = cleaned_line.split("(").collect();
         if let Some(indicator) = parts.get(0) {
             let in_map = line_indicators.get(indicator.clone());
@@ -79,6 +95,7 @@ pub fn parse_sol_file(
                     None => {}
                     _ => {}
                 }
+
                 if is_comment_line(past_line.as_ref().unwrap()) {
                     while past_line_counter < 10 {
                         past_line_counter += 1;
@@ -102,23 +119,41 @@ pub fn parse_sol_file(
                                 indicator.to_string(),
                                 SolidityMessageAndArgs {
                                     error_message: message.unwrap(),
-                                    args,
+                                    args: args,
                                 },
                             );
-                            // println!("i = {}", i);
                             break;
                         }
                     }
+                } else {
+                    //insert it with an empty message
+                    let key = indicator.to_string();
+                    let val_in_map = line_indicators.get(key.as_str());
+                    let cleaned_error = match val_in_map {
+                        Some(val) => val.clone(),
+                        None => {
+                            println!("Could not find error {}", key);
+                            "".to_string()
+                        }
+                    };
+                    let args = parse_args_from_cleaned_error(cleaned_error);
+                    error_to_error_message.insert(
+                        indicator.to_string(),
+                        SolidityMessageAndArgs {
+                            error_message: "".to_string(),
+                            args: args,
+                        },
+                    );
                 }
             }
         }
     }
     //Print out the entire error_to_error_message_map
-    for (error, error_message) in error_to_error_message.iter() {
-        println!("{} -> {:?}", error, error_message);
-    }
+    // for (error, error_message) in error_to_error_message.iter() {
+    //     println!("{} -> {:?}", error, error_message);
+    // }
 
-    Ok(error_to_error_message)
+    Ok((error_to_error_message, identifier_to_selector))
 }
 
 fn is_comment_line(line: &str) -> bool {
@@ -149,7 +184,7 @@ fn is_message_line(line: &str) -> (bool, Option<String>) {
     return (false, None);
 }
 
-pub fn parse_args_from_cleaned_error(line: String) -> Vec<SolidityArg> {
+pub fn parse_args_from_cleaned_error(line: String) -> Vec<ABIInput> {
     let split = line.split("(").collect::<Vec<&str>>();
 
     let line = split[1].replace(")", "");
@@ -161,15 +196,16 @@ pub fn parse_args_from_cleaned_error(line: String) -> Vec<SolidityArg> {
 
     //split by comma to find all the args
     let solidity_args = line.split(",").collect::<Vec<&str>>();
-    let mut args: Vec<SolidityArg> = Vec::new();
+    let mut args: Vec<ABIInput> = Vec::new();
     for arg in solidity_args.into_iter() {
         let arg = arg.trim();
         let arg_parts = arg.split(" ").collect::<Vec<&str>>();
         let arg_type = arg_parts.get(0).unwrap();
         let arg_name = arg_parts.get(1).unwrap_or(&"");
-        let solidity_arg = SolidityArg {
-            _type: arg_type.to_string(),
+        let solidity_arg = ABIInput {
+            _type: Some(arg_type.to_string()),
             name: Some(arg_name.to_string()),
+            internal_type: Some(arg_type.to_string()),
         };
         args.push(solidity_arg);
     }
