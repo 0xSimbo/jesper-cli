@@ -25,7 +25,7 @@ Rules
 - The injected arguments must be wrapped in `{}`
 - The error must be wrapped in quotes ""
 
-```typescript
+```solidity
 contract MyContract {
     error ErrIsContract();
     //#Message: "USDG: NotVetoCouncilMember"
@@ -34,7 +34,9 @@ contract MyContract {
     error ErrPermanentlyFrozen();
     //#Message: "USDG: ToCannotBeUSDCReceiver"
     error ToCannotBeUSDCReceiver();
-    //#Message: "USDG: CannotSwapZero"
+    /**
+        * #Message: "USDG: CannotSwapZero"
+     */
     error ErrCannotSwapZero();
 
     //#Message: "Cannot send to {user}"
