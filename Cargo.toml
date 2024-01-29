@@ -3,6 +3,8 @@ name = "jasper"
 version = "0.1.0"
 edition = "2021"
 authors= ["Simon Bindefeld simonnfts@gmail.com X (Formerly Twitter): @0xSimon"]
+description="Jasper is a simple, yet powerful, error generator for Solidity. It allows you to generate typescript errors from your Solidity code, and use them to create custom error messages."
+license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
