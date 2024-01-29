@@ -1,4 +1,4 @@
-use crate::config::{parse_abi_file, JasperConfigOutput};
+use crate::config::{parse_abi_file, JesperConfigOutput};
 use crate::constants;
 use crate::find_selector;
 use crate::parse_sol_file::{parse_sol_file, SolidityMessageAndArgs, Temp};
@@ -49,7 +49,7 @@ pub fn prepare_error_from_abi_input(input: &SolidityABI) -> String {
 pub fn handle_parse_all_files(
     abi_files: Vec<String>,
     solidity_files: Vec<String>,
-    config: &JasperConfigOutput,
+    config: &JesperConfigOutput,
 ) {
     let mut error_name_to_inputs_hashmap: HashMap<String, Vec<ABIInput>> = HashMap::new();
     let (selectors, prepared_errors) =
@@ -172,18 +172,18 @@ pub fn handle_parse_all_files(
     //Save the map
     let map_json = serde_json::to_string_pretty(&output.clone()).unwrap();
 
-    let typescript_prefix = "export const errors:JasperObject = ";
+    let typescript_prefix = "export const errors:JesperObject = ";
     let typescript_suffix = ";";
     let typescript =
         constants::PREFIX_TEXT.to_owned() + typescript_prefix + &map_json + typescript_suffix;
-    let save_path = config.output_folder.clone() + "/jasper-bindings.ts";
+    let save_path = config.output_folder.clone() + "/jesper-bindings.ts";
     let save_path = save_path.replace("//", "/");
     std::fs::write(save_path, typescript).unwrap();
 }
 
 pub fn get_prepared_errors_from_abi_files(
     abi_files: Vec<String>,
-    config: &JasperConfigOutput,
+    config: &JesperConfigOutput,
     error_name_to_inputs_hashmap: &mut HashMap<String, Vec<ABIInput>>,
 ) -> (Vec<String>, Vec<String>) {
     let mut prepared_errors: Vec<String> = Vec::new();

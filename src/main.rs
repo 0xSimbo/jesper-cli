@@ -13,7 +13,7 @@ use crate::{config::generate_mode_files, handle_parse_all_files::handle_parse_al
 use config::{create_output_folder_if_not_exists, generate_basic_config, read_config};
 
 #[derive(Parser, Debug)]
-#[command(name = "Jasper", version = "1.0", author = "0xSimon", about = "A powerful error generator for Solidity", long_about = None)]
+#[command(name = "Jesper", version = "1.0", author = "0xSimon", about = "A powerful error generator for Solidity", long_about = None)]
 struct Cli {
     #[command(subcommand)]
     command: Option<Commands>,

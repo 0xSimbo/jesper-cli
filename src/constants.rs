@@ -14,13 +14,13 @@ export type SolidityMessageAndArgs = {
     }[];
   };
   
-  export type FullJasperError = {
+  export type FullJesperError = {
     errorName: string;
     solidityMessageAndArgs: SolidityMessageAndArgs;
   };
   
-  export type JasperObject = {
-    [key: string]: FullJasperError;
+  export type JesperObject = {
+    [key: string]: FullJesperError;
   };
 
 "#;

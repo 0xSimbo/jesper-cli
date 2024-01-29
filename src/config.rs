@@ -41,7 +41,7 @@ where
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct JasperConfig {
+pub struct JesperConfig {
     #[serde(rename = "outputFolder")]
     pub output_folder: String,
     #[serde(rename = "typescript")]
@@ -61,7 +61,7 @@ pub struct JasperConfig {
     pub modes: Vec<Modes>,
 }
 
-pub struct JasperConfigOutput {
+pub struct JesperConfigOutput {
     pub output_folder: String,
     pub typescript: bool,
     pub all_abi_files: Vec<String>,
@@ -70,17 +70,17 @@ pub struct JasperConfigOutput {
     pub modes: Vec<Modes>,
 }
 
-pub fn read_config() -> JasperConfigOutput {
+pub fn read_config() -> JesperConfigOutput {
     generate_basic_config();
     let config_file =
-        fs::read_to_string("jasper-config.json").expect("Could not read jasper-config.json");
-    let config: JasperConfig =
-        serde_json::from_str(&config_file).expect("Could not parse jasper-config.json");
+        fs::read_to_string("jesper-config.json").expect("Could not read jesper-config.json");
+    let config: JesperConfig =
+        serde_json::from_str(&config_file).expect("Could not parse jesper-config.json");
     let all_abi_files = get_all_abi_files(&config);
 
     let all_solidity_files = get_all_solidity_files(&config);
 
-    return JasperConfigOutput {
+    return JesperConfigOutput {
         output_folder: config.output_folder,
         typescript: config.typescript,
         all_abi_files,
@@ -94,7 +94,7 @@ pub fn read_config() -> JasperConfigOutput {
 //     abi: Vec<SolidityABI>,
 
 // }
-fn get_all_abi_files(config: &JasperConfig) -> Vec<String> {
+fn get_all_abi_files(config: &JesperConfig) -> Vec<String> {
     let out_folder = match config.framework {
         Framework::Foundry => "./out/",
         Framework::Hardhat => "./artifacts/",
@@ -112,7 +112,7 @@ fn get_all_abi_files(config: &JasperConfig) -> Vec<String> {
     return all_abi_files;
 }
 
-fn get_all_solidity_files(config: &JasperConfig) -> Vec<String> {
+fn get_all_solidity_files(config: &JesperConfig) -> Vec<String> {
     let mut all_solidity_files = walkdir::WalkDir::new(config.contracts_path.clone())
         .into_iter()
         .filter_map(|e| e.ok())
@@ -134,7 +134,7 @@ struct FileWithABI {
 }
 pub fn parse_abi_file(
     abi_file_path: &str,
-    config: &JasperConfigOutput,
+    config: &JesperConfigOutput,
 ) -> Option<Vec<SolidityABI>> {
     let abi_json = std::fs::read_to_string(abi_file_path);
     match abi_json {
@@ -175,15 +175,15 @@ pub fn parse_abi_file(
 }
 
 pub fn generate_basic_config() {
-    let path = "jasper-config.json";
+    let path = "jesper-config.json";
     //If it doesent exist, create it
     let exists = std::path::Path::new(path).exists();
     if exists {
         return;
     }
     if !exists {
-        let config = JasperConfig {
-            output_folder: "./jasper-bindings".to_string(),
+        let config = JesperConfig {
+            output_folder: "./jesper-bindings".to_string(),
             typescript: true,
             framework: Framework::Foundry,
             contracts_path: "./src".to_string(),
@@ -193,17 +193,17 @@ pub fn generate_basic_config() {
         };
 
         let config_json = serde_json::to_string_pretty(&config).unwrap();
-        std::fs::write("./jasper-config.json", config_json).unwrap();
-        println!("Generated config in jasper-config.json");
+        std::fs::write("./jesper-config.json", config_json).unwrap();
+        println!("Generated config in jesper-config.json");
     }
 }
 
-pub fn generate_mode_files(config: &JasperConfigOutput) {
+pub fn generate_mode_files(config: &JesperConfigOutput) {
     let modes = config.modes.clone();
     for mode in modes {
         match mode {
             Modes::EthersV5 => {
-                let filename = "jasperParseErrorEthers.ts";
+                let filename = "jesperParseErrorEthers.ts";
                 let file_contents = ethers_boilerplate();
                 let path = format!("{}/{}", config.output_folder, filename);
                 let path = path.replace("//", "/");
@@ -211,7 +211,7 @@ pub fn generate_mode_files(config: &JasperConfigOutput) {
             }
 
             Modes::Viem => {
-                let filename = "jasperParseErrorViem.ts";
+                let filename = "jesperParseErrorViem.ts";
                 let file_contents = viem_boilerplate();
                 let path = format!("{}/{}", config.output_folder, filename);
                 let path = path.replace("//", "/");
@@ -221,7 +221,7 @@ pub fn generate_mode_files(config: &JasperConfigOutput) {
     }
 }
 
-pub fn create_output_folder_if_not_exists(config: &JasperConfigOutput) {
+pub fn create_output_folder_if_not_exists(config: &JesperConfigOutput) {
     let output_folder = config.output_folder.clone();
     let exists = std::path::Path::new(&output_folder).exists();
     if !exists {

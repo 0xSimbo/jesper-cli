@@ -1,12 +1,12 @@
 import { decodeAbiParameters } from "viem";
-import { errors } from "./jasper-bindings";
+import { errors } from "./jesper-bindings";
 
 type DebugArg = {
   value: string;
   name: string;
 };
 
-export const jasperParseError = (errorData: string) => {
+export const jesperParseError = (errorData: string) => {
   const first4Bytes = errorData.slice(0, 10);
   const error = errors[first4Bytes];
   if (!error) {
@@ -50,7 +50,7 @@ export const jasperParseError = (errorData: string) => {
 if (require.main === module) {
   const errorData =
     "0x184e6eae000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000b";
-  const { error, errorMessage, debugArgs } = jasperParseError(errorData);
+  const { error, errorMessage, debugArgs } = jesperParseError(errorData);
   console.log(error);
   console.log(errorMessage);
   console.log(debugArgs);
