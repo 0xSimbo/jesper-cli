@@ -179,7 +179,6 @@ pub fn generate_basic_config() {
     //If it doesent exist, create it
     let exists = std::path::Path::new(path).exists();
     if exists {
-        println!("jasper-config.json already exists");
         return;
     }
     if !exists {

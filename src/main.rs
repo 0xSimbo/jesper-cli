@@ -13,7 +13,7 @@ use crate::{config::generate_mode_files, handle_parse_all_files::handle_parse_al
 use config::{create_output_folder_if_not_exists, generate_basic_config, read_config};
 
 #[derive(Parser, Debug)]
-#[command(author, version, about, long_about = None)]
+#[command(name = "Jasper", version = "1.0", author = "0xSimon", about = "A powerful error generator for Solidity", long_about = None)]
 struct Cli {
     #[command(subcommand)]
     command: Option<Commands>,
@@ -21,11 +21,15 @@ struct Cli {
 
 #[derive(Subcommand, Debug)]
 enum Commands {
+    /// Generate TypeScript errors from Solidity code
     Gen {
-        // Define additional arguments/options for the start command if needed
+        // Define additional arguments/options for the Gen command if needed
     },
 
-    Init {},
+    /// Initialize the project with a default configuration
+    Init {
+        // Additional options for Init can be added here
+    },
 }
 
 fn main() {
@@ -44,7 +48,7 @@ fn main() {
             generate_basic_config();
         }
         None => {
-            println!("No command found");
+            println!("No command found. Use --help for more information.");
         }
     }
 }

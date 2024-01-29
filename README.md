@@ -1,10 +1,6 @@
+<img src="assets/jasper.webp" alt="Jasper" style="border-radius: 10px; width: 200px; height: 200px;"/>
+
 # Jasper
-
-## Author
-
-Made by <a href="https://x.com/0xSimon" target="_blank">0xSimon</a>
-
-## Description
 
 Jasper is a simple, yet powerful, error generator for Solidity. It allows you to generate typescript errors from your Solidity code, and use them to create custom error messages.
 
@@ -30,6 +26,7 @@ Rules
 - The error must be wrapped in quotes ""
 
 ```typescript
+contract MyContract {
     error ErrIsContract();
     //#Message: "USDG: NotVetoCouncilMember"
     error ErrNotVetoCouncilMember();
@@ -42,6 +39,10 @@ Rules
 
     //#Message: "Cannot send to {user}"
     error ErrCannotSendToUser(address user, address sender);
+
+   //......rest of logic
+
+}
 ```
 
 ## Commands
@@ -85,3 +86,7 @@ It exports a function called `jasperParseError` which takes in error data and re
 - [x] Setup tests
 - [x] Setup CI
 - [x] More stuff I can't think of, just did a 12h bender on this
+
+## Author
+
+Made by <a href="https://x.com/0xSimon" target="_blank">0xSimon</a>
