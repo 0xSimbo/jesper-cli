@@ -7,7 +7,7 @@ Jesper is a simple, yet powerful, error generator for Solidity. It allows you to
 ## Installation
 
 ```bash
-npm install jasper
+cargo install jesper
 ```
 
 ## Usage
