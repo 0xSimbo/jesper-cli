@@ -1,0 +1,11 @@
+// Define a rule that matches a line not starting with "//"
+not_comment = { !("^//" ~ ANY*) ~ ANY* }
+
+// Define the error rule to include the 'not_comment' rule
+// Define a rule to match a line with 'error(...)'
+error_start = { "error(" }
+sol_error = { error_start ~ ANY* }
+
+
+
+alpha = { 'a'..'z' | 'A'..'Z' }

@@ -1,0 +1,8 @@
+{
+  "outputFolder": "jasper-bindings",
+  "typescript": true,
+  "framework": "foundry",
+  "contractsPath": "./contracts",
+  "excludedFiles": [],
+  "extraIncludedFiles": []
+}
