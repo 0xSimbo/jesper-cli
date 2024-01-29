@@ -1,8 +1,8 @@
-<img src="assets/jasper.webp" alt="Jasper" style="border-radius: 10px; width: 200px; height: 200px;"/>
+<img src="assets/jesper.webp" alt="Jesper" style="border-radius: 10px; width: 200px; height: 200px;"/>
 
-# Jasper
+# Jesper
 
-Jasper is a simple, yet powerful, error generator for Solidity. It allows you to generate typescript errors from your Solidity code, and use them to create custom error messages.
+Jesper is a simple, yet powerful, error generator for Solidity. It allows you to generate typescript errors from your Solidity code, and use them to create custom error messages.
 
 ## Installation
 
@@ -12,7 +12,7 @@ npm install jasper
 
 ## Usage
 
-Jasper automatically parses the output folder of your framework and generates a typescript file with all the errors in it. You can then import this file and use it to create custom error messages.
+Jesper automatically parses the output folder of your framework and generates a typescript file with all the errors in it. You can then import this file and use it to create custom error messages.
 
 You can also optionally leave a message on top of the error which will add a custom message to the error.
 The error arguments can also be injected into the message by using the `{}` syntax.
@@ -49,19 +49,19 @@ contract MyContract {
 
 ### Init project
 
-This creates a default `jasper-config.json` file in the root of your project.
+This creates a default `jesper-config.json` file in the root of your project.
 
-`jasper init`
+`jesper init`
 
 ### Generate errors
 
-`jasper gen`
+`jesper gen`
 
 ## Config
 
 ```typescript
 {
-  "outputFolder": "./jasper-bindings", // The folder where the generated typescript file will be placed
+  "outputFolder": "./jesper-bindings", // The folder where the generated typescript file will be placed
   "typescript": true, //does nothing for now, will get JS bindings soon
   "framework": "foundry", //foundry | hardhat
   "contractsPath": "./contracts", //The path where the contracts are located
@@ -74,11 +74,11 @@ This creates a default `jasper-config.json` file in the root of your project.
 
 ## About The Output
 
-Jasper will output a typescript file with all the errors in it. The file will be named `jasper-bindings.ts` and will be placed in the `outputFolder` specified in the config.
+Jesper will output a typescript file with all the errors in it. The file will be named `jesper-bindings.ts` and will be placed in the `outputFolder` specified in the config.
 
-Another file will be generated based on the `modes` specified in the config. This file will be named `jasperParseError<mode>.ts` and will be placed in the `outputFolder` specified in the config as well.
+Another file will be generated based on the `modes` specified in the config. This file will be named `jesperParseError<mode>.ts` and will be placed in the `outputFolder` specified in the config as well.
 
-It exports a function called `jasperParseError` which takes in error data and returns a string. This function is used to parse the error message and inject the arguments into the message.
+It exports a function called `jesperParseError` which takes in error data and returns a string. This function is used to parse the error message and inject the arguments into the message.
 
 ## Roadmap
 
